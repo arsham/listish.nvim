@@ -1,4 +1,4 @@
-# Arshlib.nvim
+# Listish.nvim
 
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/arsham/listish.nvim)
 ![License](https://img.shields.io/github/license/arsham/listish.nvim)
