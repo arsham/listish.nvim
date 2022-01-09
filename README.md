@@ -47,7 +47,7 @@ Use your favourite package manager to install this library. Packer example:
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arshlib.nvim", "nvim.lua" },
+  requires = { "arsham/arshlib.nvim", "norcalli/nvim.lua" },
   config = function() require("listish").config({}) end,
 })
 ```
@@ -104,7 +104,7 @@ events or when the first quickfix/local list is opened. Packer example:
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arshlib.nvim", "nvim.lua" },
+  requires = { "arsham/arshlib.nvim", "norcalli/nvim.lua" },
   config = function() require("listish").config({}) end,
   keys = {
     "<leader>qq", "<leader>qn", "<leader>qo",
