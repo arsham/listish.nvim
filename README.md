@@ -57,12 +57,12 @@ use({
 By default this pluging adds all necessary commands and mappings, and updates
 the theme of the buffer. However you can change or disable them to your liking.
 
-To disable set them to `false` or `nil` (either would work). For example:
+To disable set them to `false`. For example:
 
 ```lua
 require("listish").config({
   theme_list = false,
-  local_list = nil,
+  local_list = false,
 })
 ```
 
