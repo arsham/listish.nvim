@@ -70,8 +70,7 @@ local function insert_list(items, is_local) --{{{
   end
 end --}}}
 
----Inserts the current position of the cursor in the qf/local list with the
--- note.
+---Inserts the current position of the cursor in the qf/local list.
 -- @param note string
 -- @param is_local boolean if true, the item goes into the local list.
 local function inset_note_to_list(note, is_local) --{{{
@@ -97,18 +96,23 @@ end
 
 ---Opens a popup for a note, and adds the current line and column with the note
 -- to the list.
--- @param name string the name of the mapping for repeating.
 -- @param is_local boolean if true, the item goes into the local list.
-local function add_note(name, is_local) --{{{
+local function add_note(is_local) --{{{
   util.user_input({
     prompt = "Note: ",
     on_submit = function(value)
       inset_note_to_list(value, is_local)
-      local key = vim.api.nvim_replace_termcodes(name, true, false, true)
-      vim.fn["repeat#set"](key, vim.v.count)
     end,
   })
 end --}}}
+
+-- selene: allow(global_usage)
+function _G.add_quickfix_note()
+  add_note(false)
+end
+function _G.add_locallist_note()
+  add_note(true)
+end
 
 ---Add the current line and the column to the list.
 -- @param name string the name of the mapping for repeating.
@@ -282,13 +286,10 @@ local function config(opts)
   end
 
   if opts.quickfix.add_note then
-    vim.keymap.set("n", "<Plug>QuickfixNote", function()
-      add_note("<Plug>QuickfixNote", false)
-    end, { noremap = true, desc = "add to quickfix list with a node" })
-
-    vim.keymap.set("n", opts.quickfix.add_note, "<Plug>QuickfixNote",
-      { noremap = true, desc = "add to quickfix list with node" }
-    )
+    vim.keymap.set("n", opts.quickfix.add_note, function()
+      vim.opt.opfunc = "v:lua.add_quickfix_note"
+      return "g@<cr>"
+    end, { noremap = true, expr = true, desc = "add to quickfix list with node" })
   end
 
   if opts.quickfix.clear then
@@ -322,12 +323,10 @@ local function config(opts)
   end
 
   if opts.locallist.add_note then
-    vim.keymap.set("n", "<Plug>LocallistNote", function()
-      add_note("<Plug>LocallistNote", true)
-    end, { noremap = true, desc = "add to local list with a node" })
-    vim.keymap.set("n", opts.locallist.add_note, "<Plug>LocallistNote",
-      { noremap = true, desc = "add to local list with node" }
-    )
+    vim.keymap.set("n", opts.locallist.add_note, function()
+      vim.opt.opfunc = "v:lua.add_locallist_note"
+      return "g@<cr>"
+    end, { noremap = true, expr = true, desc = "add to local list with node" })
   end
 
   if opts.locallist.clear then
