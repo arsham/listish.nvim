@@ -73,7 +73,7 @@ end --}}}
 ---Inserts the current position of the cursor in the qf/local list.
 -- @param note string
 -- @param is_local boolean if true, the item goes into the local list.
-local function inset_note_to_list(note, is_local) --{{{
+local function insert_note_to_list(note, is_local) --{{{
   local location = vim.api.nvim_win_get_cursor(0)
   local item = {
     bufnr = vim.fn.bufnr(),
@@ -101,7 +101,7 @@ local function add_note(is_local) --{{{
   util.user_input({
     prompt = "Note: ",
     on_submit = function(value)
-      inset_note_to_list(value, is_local)
+      insert_note_to_list(value, is_local)
     end,
   })
 end --}}}
@@ -114,15 +114,18 @@ function _G.add_locallist_note()
   add_note(true)
 end
 
----Add the current line and the column to the list.
--- @param name string the name of the mapping for repeating.
--- @param is_local boolean if true, the item goes into the local list.
-local function add_line(name, is_local) --{{{
-  local note = vim.api.nvim_get_current_line()
-  inset_note_to_list(note, is_local)
-  local key = vim.api.nvim_replace_termcodes(name, true, false, true)
-  vim.fn["repeat#set"](key, vim.v.count)
-end --}}}
+-- selene: allow(global_usage)
+---Add the current line and the column to the quickfix list.
+function _G.insert_to_quickfix()
+  local line = vim.api.nvim_get_current_line()
+  insert_note_to_list(line, false)
+end
+
+---Add the current line and the column to the local list.
+function _G.insert_to_locallist()
+  local line = vim.api.nvim_get_current_line()
+  insert_note_to_list(line, true)
+end
 
 ---Makes the quickfix and local list prettier. Borrowed from nvim-bqf.
 -- selene: allow(global_usage)
@@ -276,13 +279,10 @@ local function config(opts)
   end
 
   if opts.quickfix.on_cursor then
-    vim.keymap.set("n", "<Plug>QuickfixAdd", function()
-      add_line("<Plug>QuickfixAdd", false)
-    end, { noremap = true, desc = "add to quickfix list" })
-
-    vim.keymap.set("n", opts.quickfix.on_cursor, "<Plug>QuickfixAdd",
-      { noremap = true, desc = "add to quickfix list" }
-    )
+    vim.keymap.set("n", opts.quickfix.on_cursor, function()
+      vim.opt.opfunc = "v:lua.insert_to_quickfix"
+      return "g@<cr>"
+    end, { noremap = true, expr = true, desc = "add to quickfix list" })
   end
 
   if opts.quickfix.add_note then
@@ -314,12 +314,10 @@ local function config(opts)
   end
 
   if opts.locallist.on_cursor then
-    vim.keymap.set("n", "<Plug>LocallistAdd", function()
-      add_line("<Plug>LocallistAdd", true)
-    end, { noremap = true, desc = "add to local list" })
-    vim.keymap.set("n", opts.locallist.on_cursor, "<Plug>LocallistAdd",
-      { noremap = true, desc = "add to local list" }
-    )
+    vim.keymap.set("n", opts.locallist.on_cursor, function()
+      vim.opt.opfunc = "v:lua.insert_to_locallist"
+      return "g@<cr>"
+    end, { noremap = true, expr = true, desc = "add to local list" })
   end
 
   if opts.locallist.add_note then
