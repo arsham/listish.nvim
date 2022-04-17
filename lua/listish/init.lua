@@ -190,7 +190,7 @@ local function jump_list_mapping(key, next, wrap, desc) --{{{
       catch /^Vim\%%((\a\+)\)\=:E42\|E776/
       endtry
       ]]):format(next, wrap))
-    end, {noremap=true, desc = desc }
+    end, {desc = desc }
   )
 end --}}}
 
@@ -256,7 +256,7 @@ local function config(opts)
     vim.keymap.set("n", opts.lists_close, function()
       nvim.ex.cclose()
       nvim.ex.lclose()
-    end, { noremap = true, silent = true, desc = "Close quickfix list and local list windows" })
+    end, { silent = true, desc = "Close quickfix list and local list windows" })
   end
 
   if opts.theme_list then
@@ -274,7 +274,7 @@ local function config(opts)
 
   if opts.quickfix.open then
     vim.keymap.set("n", opts.quickfix.open, nvim.ex.copen,
-      { noremap = true, silent = true, desc = "open quickfix list" }
+      { silent = true, desc = "open quickfix list" }
     )
   end
 
@@ -282,25 +282,25 @@ local function config(opts)
     vim.keymap.set("n", opts.quickfix.on_cursor, function()
       vim.opt.opfunc = "v:lua.insert_to_quickfix"
       return "g@<cr>"
-    end, { noremap = true, expr = true, desc = "add to quickfix list" })
+    end, { expr = true, desc = "add to quickfix list" })
   end
 
   if opts.quickfix.add_note then
     vim.keymap.set("n", opts.quickfix.add_note, function()
       vim.opt.opfunc = "v:lua.add_quickfix_note"
       return "g@<cr>"
-    end, { noremap = true, expr = true, desc = "add to quickfix list with node" })
+    end, { expr = true, desc = "add to quickfix list with node" })
   end
 
   if opts.quickfix.clear then
     vim.keymap.set("n", opts.quickfix.clear, clearqflist,
-      { noremap = true, silent = true, desc = "drop quickfix list" }
+      { silent = true, desc = "drop quickfix list" }
     )
   end
 
   if opts.quickfix.close then
     vim.keymap.set("n", opts.quickfix.close, nvim.ex.cclose,
-      { noremap = true, silent = true, desc = "close quickfix list" }
+      { silent = true, desc = "close quickfix list" }
     )
   end
   -- }}}
@@ -309,7 +309,7 @@ local function config(opts)
   if opts.locallist.open then
     vim.keymap.set("n", opts.locallist.open, function()
       nvim.ex.silent_("lopen")
-    end, { noremap = true, silent = true, desc = "open local list" }
+    end, { silent = true, desc = "open local list" }
     )
   end
 
@@ -317,25 +317,25 @@ local function config(opts)
     vim.keymap.set("n", opts.locallist.on_cursor, function()
       vim.opt.opfunc = "v:lua.insert_to_locallist"
       return "g@<cr>"
-    end, { noremap = true, expr = true, desc = "add to local list" })
+    end, { expr = true, desc = "add to local list" })
   end
 
   if opts.locallist.add_note then
     vim.keymap.set("n", opts.locallist.add_note, function()
       vim.opt.opfunc = "v:lua.add_locallist_note"
       return "g@<cr>"
-    end, { noremap = true, expr = true, desc = "add to local list with node" })
+    end, { expr = true, desc = "add to local list with node" })
   end
 
   if opts.locallist.clear then
     vim.keymap.set("n", opts.locallist.clear, clearloclist,
-      { noremap = true, silent = true, desc = "drop local list" }
+      { silent = true, desc = "drop local list" }
     )
   end
 
   if opts.locallist.close then
     vim.keymap.set("n", opts.locallist.close, nvim.ex.lclose,
-      { noremap = true, silent = true, desc = "close local list" }
+      { silent = true, desc = "close local list" }
     )
   end
   -- }}}
@@ -346,21 +346,27 @@ local function config(opts)
   jump_list_mapping(opts.locallist.prev, "lprevious", "llast", "jump to previous item in local list")
 
   if opts.in_list_dd then
-    quick.augroup({"QF_LOC_LISTS", {
-      {"Filetype", "qf", docs = "don't list qf/local lists",
-        run = function()
-          vim.bo.buflisted = false
-          vim.opt_local.cursorline = true
-        end,
-      },
-      {"FileType", "qf", docs = "delete from qf/local lists",
-        run = function()
-          vim.keymap.set("n", opts.in_list_dd, delete_list_item,
-            { noremap = true, buffer = true, desc = "delete from qf/local lists" }
-          )
-        end,
-      },
-    }})
+    local qf_loc_lists_group = vim.api.nvim_create_augroup("QF_LOC_LISTS", { clear = true })
+    vim.api.nvim_create_autocmd("Filetype", {
+      group = qf_loc_lists_group,
+      pattern = "qf",
+      desc = "don't list qf/local lists",
+      callback = function()
+        vim.bo.buflisted = false
+        vim.opt_local.cursorline = true
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("FileType", {
+      group = qf_loc_lists_group,
+      pattern = "qf",
+      desc = "delete from qf/local lists",
+      callback = function()
+        vim.keymap.set( "n", opts.in_list_dd, delete_list_item,
+          { buffer = true, desc = "delete from qf/local lists" }
+        )
+      end,
+    })
   end
   -- stylua: ignore end
 end
