@@ -39,6 +39,9 @@ as dependencies in your package manager:
 - [arshlib.nvim](https://github.com/arsham/arshlib.nvim)
 - [nvim.lua](https://github.com/norcalli/nvim.lua)
 
+Please consider using the [nvim-bqf](https://github.com/kevinhwang91/nvim-bqf)
+plugin to get the most out of your lists.
+
 ## Installation
 
 Use your favourite package manager to install this library. Packer example:
@@ -72,6 +75,7 @@ Here is the default settings:
   theme_list = true,
   clearqflist = "Clearquickfix", -- command
   clearloclist = "Clearloclist", -- command
+  clear_notes = "ClearListNotes", -- command
   lists_close = "<leader>cc",    -- closes both qf/loacal lists
   in_list_dd = "dd",             -- delete current item in the list
   quickfix = {

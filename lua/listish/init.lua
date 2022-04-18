@@ -70,6 +70,8 @@ local function insert_list(items, is_local) --{{{
   end
 end --}}}
 
+local unique_id = "ADDED BY LISTISH PLUGIN"
+
 ---Inserts the current position of the cursor in the qf/local list.
 -- @param note string
 -- @param is_local boolean if true, the item goes into the local list.
@@ -80,6 +82,7 @@ local function insert_note_to_list(note, is_local) --{{{
     lnum = location[1],
     col = location[2] + 1,
     text = note,
+    pattern = unique_id,
   }
   insert_list({ item }, is_local)
 end
@@ -93,6 +96,26 @@ local clearloclist = function()
   nvim.ex.lclose()
 end
 --}}}
+
+local function filter_listish_items(cur_list)
+  local new_list = {}
+  for _, item in ipairs(cur_list) do
+    if item.pattern ~= unique_id then
+      table.insert(new_list, item)
+    end
+  end
+  return new_list
+end
+
+---Clears the items added by this plugin from the quickfix list and the local
+-- list of the current window.
+local function clear_notes() --{{{
+  local new_list = filter_listish_items(vim.fn.getloclist(0))
+  vim.fn.setloclist(0, new_list)
+
+  new_list = filter_listish_items(vim.fn.getqflist())
+  vim.fn.setqflist(new_list)
+end --}}}
 
 ---Opens a popup for a note, and adds the current line and column with the note
 -- to the list.
@@ -198,6 +221,7 @@ local defaults = { --{{{
   theme_list = true,
   clearqflist = "Clearquickfix",
   clearloclist = "Clearloclist",
+  clear_notes = "ClearListNotes",
   lists_close = "<leader>cc",
   in_list_dd = "dd",
   quickfix = {
@@ -231,6 +255,7 @@ local function config(opts)
     theme_list          = { opts.theme_list, { "boolean", "nil" }, false },
     clearqflist         = { opts.clearqflist,         string_type },
     clearloclist        = { opts.clearloclist,        string_type },
+    clear_notes         = { opts.clear_notes,         string_type },
     lists_close         = { opts.lists_close,         string_type },
     in_list_dd          = { opts.in_list_dd,          string_type },
     quickfix            = { opts.quickfix,            { "table" } },
@@ -265,11 +290,15 @@ local function config(opts)
 
   -- Quickfix list mappings {{{
   if opts.clearqflist then
-    quick.command(opts.clearqflist, clearqflist)
+    quick.command(opts.clearqflist, clearqflist, { desc = "clear quickfix list items" })
   end
 
   if opts.clearloclist then
-    quick.command(opts.clearloclist, clearloclist)
+    quick.command(opts.clearloclist, clearloclist, { desc = "clear local list items" })
+  end
+
+  if opts.clear_notes then
+    quick.command(opts.clear_notes, clear_notes, { desc = "clear notes from list" })
   end
 
   if opts.quickfix.open then
