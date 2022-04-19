@@ -11,7 +11,8 @@ you can create notes on current position to either lists.
 3. [Installation](#installation)
    - [Config](#config)
    - [Lazy Loading](#lazy-loading)
-4. [License](#license)
+4. [Related Projects](#related-projects)
+5. [License](#license)
 
 ## Demo
 
@@ -116,6 +117,12 @@ use({
   ft = { "qf" },
 })
 ```
+
+## Related Projects
+
+- [nvim-bqf](https://github.com/kevinhwang91/nvim-bqf): manipulate lists with fzf
+- [replacer.nvim](https://github.com/gabrielpoca/replacer.nvim): makes a quickfix list editable in both content and file path
+- [quickfix-reflector.vim](https://github.com/stefandtw/quickfix-reflector.vim): change code right in the quickfix window
 
 ## License
 

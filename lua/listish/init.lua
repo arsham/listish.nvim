@@ -1,5 +1,4 @@
 local nvim = require("nvim")
-local util = require("arshlib.util")
 local quick = require("arshlib.quick")
 
 ---When using `dd` in the quickfix list, remove the item from the quickfix
@@ -121,12 +120,13 @@ end --}}}
 -- to the list.
 -- @param is_local boolean if true, the item goes into the local list.
 local function add_note(is_local) --{{{
-  util.user_input({
+  vim.ui.input({
     prompt = "Note: ",
-    on_submit = function(value)
+  }, function(value)
+    if value then
       insert_note_to_list(value, is_local)
-    end,
-  })
+    end
+  end)
 end --}}}
 
 -- selene: allow(global_usage)
