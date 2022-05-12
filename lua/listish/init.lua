@@ -69,7 +69,7 @@ local function insert_list(items, is_local) --{{{
   end
 end --}}}
 
-local unique_id = "ADDED BY LISTISH PLUGIN"
+local unique_id = "Z"
 
 ---Inserts the current position of the cursor in the qf/local list.
 -- @param note string
@@ -81,7 +81,7 @@ local function insert_note_to_list(note, is_local) --{{{
     lnum = location[1],
     col = location[2] + 1,
     text = note,
-    pattern = unique_id,
+    type = unique_id,
   }
   insert_list({ item }, is_local)
 end
@@ -99,7 +99,7 @@ end
 local function filter_listish_items(cur_list)
   local new_list = {}
   for _, item in ipairs(cur_list) do
-    if item.pattern ~= unique_id then
+    if item.type ~= unique_id then
       table.insert(new_list, item)
     end
   end
