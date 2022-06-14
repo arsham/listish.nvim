@@ -32,13 +32,13 @@ Adding notes to the list:
 
 ## Requirements
 
-This library supports [Neovim 0.7.0](https://github.com/neovim/neovim/releases/tag/v0.7.0).
+This library supports [Neovim
+0.7.0](https://github.com/neovim/neovim/releases/tag/v0.7.0) and newer.
 
 This plugin depends are the following libraries. Please make sure to add them
 as dependencies in your package manager:
 
 - [arshlib.nvim](https://github.com/arsham/arshlib.nvim)
-- [nvim.lua](https://github.com/norcalli/nvim.lua)
 
 Please consider using the [nvim-bqf](https://github.com/kevinhwang91/nvim-bqf)
 plugin to get the most out of your lists.
@@ -50,7 +50,7 @@ Use your favourite package manager to install this library. Packer example:
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim", "norcalli/nvim.lua" },
+  requires = { "arsham/arshlib.nvim" },
   config = function() require("listish").config({}) end,
 })
 ```
@@ -108,7 +108,7 @@ events or when the first quickfix/local list is opened. Packer example:
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim", "norcalli/nvim.lua" },
+  requires = { "arsham/arshlib.nvim" },
   config = function() require("listish").config({}) end,
   keys = {
     "<leader>qq", "<leader>qn", "<leader>qo",

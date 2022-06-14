@@ -1,17 +1,16 @@
-local nvim = require("nvim")
 local quick = require("arshlib.quick")
 
 ---When using `dd` in the quickfix list, remove the item from the quickfix
 -- list.
 local function delete_list_item() -- {{{
   local cur_list = {}
-  local close = nvim.ex.close
+  local close_cmd = "close"
   local win_id = vim.fn.win_getid()
   local is_loc = vim.fn.getwininfo(win_id)[1].loclist == 1
 
   if is_loc then
     cur_list = vim.fn.getloclist(win_id)
-    close = nvim.ex.lclose
+    close_cmd = "lclose"
   else
     cur_list = vim.fn.getqflist()
   end
@@ -36,7 +35,7 @@ local function delete_list_item() -- {{{
   end
 
   if #cur_list == 0 then
-    close()
+    vim.api.nvim_command(close_cmd)
   elseif item ~= 1 then
     quick.normal("n", ("%dj"):format(item - 1))
   end
@@ -88,11 +87,11 @@ end
 
 local clearqflist = function()
   vim.fn.setqflist({})
-  nvim.ex.cclose()
+  vim.api.nvim_command("cclose")
 end
 local clearloclist = function()
   vim.fn.setloclist(0, {})
-  nvim.ex.lclose()
+  vim.api.nvim_command("lclose")
 end
 --}}}
 
@@ -279,8 +278,8 @@ local function config(opts)
 
   if opts.lists_close then
     vim.keymap.set("n", opts.lists_close, function()
-      nvim.ex.cclose()
-      nvim.ex.lclose()
+      vim.api.nvim_command("cclose")
+      vim.api.nvim_command("lclose")
     end, { silent = true, desc = "Close quickfix list and local list windows" })
   end
 
@@ -302,9 +301,10 @@ local function config(opts)
   end
 
   if opts.quickfix.open then
-    vim.keymap.set("n", opts.quickfix.open, nvim.ex.copen,
-      { silent = true, desc = "open quickfix list" }
-    )
+    vim.keymap.set("n", opts.quickfix.open, function()
+      vim.api.nvim_command("copen")
+    end,
+    { silent = true, desc = "open quickfix list" })
   end
 
   if opts.quickfix.on_cursor then
@@ -328,16 +328,17 @@ local function config(opts)
   end
 
   if opts.quickfix.close then
-    vim.keymap.set("n", opts.quickfix.close, nvim.ex.cclose,
-      { silent = true, desc = "close quickfix list" }
-    )
+    vim.keymap.set("n", opts.quickfix.close, function()
+      vim.api.nvim_command("cclose")
+    end,
+    { silent = true, desc = "close quickfix list" })
   end
   -- }}}
 
   -- Local list mappings {{{
   if opts.locallist.open then
     vim.keymap.set("n", opts.locallist.open, function()
-      nvim.ex.silent_("lopen")
+      vim.api.nvim_command("silent! lopen")
     end, { silent = true, desc = "open local list" }
     )
   end
@@ -363,9 +364,10 @@ local function config(opts)
   end
 
   if opts.locallist.close then
-    vim.keymap.set("n", opts.locallist.close, nvim.ex.lclose,
-      { silent = true, desc = "close local list" }
-    )
+    vim.keymap.set("n", opts.locallist.close, function()
+      vim.api.nvim_command("lclose")
+    end,
+    { silent = true, desc = "close local list" })
   end
   -- }}}
 

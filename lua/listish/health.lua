@@ -1,9 +1,8 @@
 local M = {}
-local health = require("health")
+local health = vim.health or require("health")
 
 local libs = {
   arshlib = "arsham/arshlib.nvim",
-  nvim = "norcalli/nvim.lua",
 }
 
 M.check = function()
