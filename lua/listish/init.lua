@@ -87,11 +87,11 @@ end
 
 local clearqflist = function()
   vim.fn.setqflist({})
-  vim.api.nvim_command("cclose")
+  vim.cmd.cclose()
 end
 local clearloclist = function()
   vim.fn.setloclist(0, {})
-  vim.api.nvim_command("lclose")
+  vim.cmd.lclose()
 end
 --}}}
 
@@ -278,8 +278,8 @@ local function config(opts)
 
   if opts.lists_close then
     vim.keymap.set("n", opts.lists_close, function()
-      vim.api.nvim_command("cclose")
-      vim.api.nvim_command("lclose")
+      vim.cmd.cclose()
+      vim.cmd.lclose()
     end, { silent = true, desc = "Close quickfix list and local list windows" })
   end
 
@@ -302,7 +302,7 @@ local function config(opts)
 
   if opts.quickfix.open then
     vim.keymap.set("n", opts.quickfix.open, function()
-      vim.api.nvim_command("copen")
+      vim.cmd.copen()
     end,
     { silent = true, desc = "open quickfix list" })
   end
@@ -329,7 +329,7 @@ local function config(opts)
 
   if opts.quickfix.close then
     vim.keymap.set("n", opts.quickfix.close, function()
-      vim.api.nvim_command("cclose")
+      vim.cmd.cclose()
     end,
     { silent = true, desc = "close quickfix list" })
   end
@@ -365,7 +365,7 @@ local function config(opts)
 
   if opts.locallist.close then
     vim.keymap.set("n", opts.locallist.close, function()
-      vim.api.nvim_command("lclose")
+      vim.cmd.lclose()
     end,
     { silent = true, desc = "close local list" })
   end
