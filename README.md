@@ -9,6 +9,8 @@ you can create notes on current position to either lists.
 1. [Demo](#demo)
 2. [Requirements](#requirements)
 3. [Installation](#installation)
+   - [Lazy](#lazy)
+   - [Packer](#packer)
    - [Config](#config)
    - [Lazy Loading](#lazy-loading)
 4. [Related Projects](#related-projects)
@@ -33,7 +35,7 @@ Adding notes to the list:
 ## Requirements
 
 This library supports [Neovim
-0.7.0](https://github.com/neovim/neovim/releases/tag/v0.7.0) and newer.
+v0.7.0](https://github.com/neovim/neovim/releases/tag/v0.7.0) and newer.
 
 This plugin depends are the following libraries. Please make sure to add them
 as dependencies in your package manager:
@@ -45,13 +47,29 @@ plugin to get the most out of your lists.
 
 ## Installation
 
-Use your favourite package manager to install this library. Packer example:
+Use your favourite package manager to install this library.
+
+### Lazy
+
+```lua
+{
+	"arsham/listish.nvim",
+	dependencies = { "arsham/arshlib.nvim" },
+	config = true,
+  -- or to provide configuration
+  -- config = { theme_list = false, ..}
+}
+```
+
+### Packer
 
 ```lua
 use({
-  "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim" },
-  config = function() require("listish").config({}) end,
+	"arsham/listish.nvim",
+	requires = { "arsham/arshlib.nvim" },
+	config = function()
+		require("listish").config({})
+	end,
 })
 ```
 
@@ -64,8 +82,8 @@ To disable set them to `false`. For example:
 
 ```lua
 require("listish").config({
-  theme_list = false,
-  local_list = false,
+	theme_list = false,
+	local_list = false,
 })
 ```
 
@@ -107,14 +125,20 @@ events or when the first quickfix/local list is opened. Packer example:
 
 ```lua
 use({
-  "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim" },
-  config = function() require("listish").config({}) end,
-  keys = {
-    "<leader>qq", "<leader>qn", "<leader>qo",
-    "<leader>ww", "<leader>wn", "<leader>wo",
-  },
-  ft = { "qf" },
+	"arsham/listish.nvim",
+	requires = { "arsham/arshlib.nvim" },
+	config = function()
+		require("listish").config({})
+	end,
+	keys = {
+		"<leader>qq",
+		"<leader>qn",
+		"<leader>qo",
+		"<leader>ww",
+		"<leader>wn",
+		"<leader>wo",
+	},
+	ft = { "qf" },
 })
 ```
 

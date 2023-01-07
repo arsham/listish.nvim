@@ -1,5 +1,5 @@
 local M = {}
-local health = vim.health or require("health")
+local health = vim.health
 
 local libs = {
   arshlib = "arsham/arshlib.nvim",

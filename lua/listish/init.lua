@@ -1,3 +1,4 @@
+---@type Quick
 local quick = require("arshlib.quick")
 
 ---When using `dd` in the quickfix list, remove the item from the quickfix
@@ -41,16 +42,11 @@ local function delete_list_item() -- {{{
   end
 end --}}}
 
--- @class ListItem
--- @field bufnr number
--- @field lnum number
--- @field col number
--- @field text string
 
 ---Inserts the current position of the cursor in the qf/local list with the
 -- note.
--- @param items ListItem[]
--- @param is_local boolean if true, the item goes into the local list.
+---@param items ListItem[]
+---@param is_local boolean if true, the item goes into the local list.
 local function insert_list(items, is_local) --{{{
   local cur_list = {}
   if is_local then
@@ -71,8 +67,8 @@ end --}}}
 local unique_id = "Z"
 
 ---Inserts the current position of the cursor in the qf/local list.
--- @param note string
--- @param is_local boolean if true, the item goes into the local list.
+---@param note string
+---@param is_local boolean if true, the item goes into the local list.
 local function insert_note_to_list(note, is_local) --{{{
   local location = vim.api.nvim_win_get_cursor(0)
   local item = {
@@ -117,7 +113,7 @@ end --}}}
 
 ---Opens a popup for a note, and adds the current line and column with the note
 -- to the list.
--- @param is_local boolean if true, the item goes into the local list.
+---@param is_local boolean if true, the item goes into the local list.
 local function add_note(is_local) --{{{
   vim.ui.input({
     prompt = "Note: ",
@@ -132,6 +128,7 @@ end --}}}
 function _G.add_quickfix_note()
   add_note(false)
 end
+-- selene: allow(global_usage)
 function _G.add_locallist_note()
   add_note(true)
 end
@@ -144,6 +141,7 @@ function _G.insert_to_quickfix()
 end
 
 ---Add the current line and the column to the local list.
+-- selene: allow(global_usage)
 function _G.insert_to_locallist()
   local line = vim.api.nvim_get_current_line()
   insert_note_to_list(line, true)
@@ -193,10 +191,10 @@ function _G.qftf(info) --{{{
 end --}}}
 
 ---Creates a mapping for jumping through lists.
--- @param key string the key to map.
--- @param next string the command to execute if there is a next item.
--- @param wrap string the command to execute if there is no next item.
--- @param desc string the description of the mapping.
+---@param key string the key to map.
+---@param next string the command to execute if there is a next item.
+---@param wrap string the command to execute if there is no next item.
+---@param desc string the description of the mapping.
 local function jump_list_mapping(key, next, wrap, desc) --{{{
   if not key then
     -- this makes the config simpler.
@@ -244,11 +242,11 @@ local defaults = { --{{{
   },
 } --}}}
 
-local function config(opts)
-  opts = vim.tbl_deep_extend("force", defaults, opts)
+local function setup(opts)
+  opts = vim.tbl_deep_extend("force", defaults, opts or {})
   local string_type = { "string", "nil", "boolean" }
   -- Validations {{{
-  -- stylua: ignore start
+  -- stylua: ignore
   vim.validate({
     opts                = { opts,            { "table",   false } },
     theme_list          = { opts.theme_list, { "boolean", "nil" }, false },
@@ -303,8 +301,7 @@ local function config(opts)
   if opts.quickfix.open then
     vim.keymap.set("n", opts.quickfix.open, function()
       vim.cmd.copen()
-    end,
-    { silent = true, desc = "open quickfix list" })
+    end, { silent = true, desc = "open quickfix list" })
   end
 
   if opts.quickfix.on_cursor then
@@ -321,6 +318,7 @@ local function config(opts)
     end, { expr = true, desc = "add to quickfix list with node" })
   end
 
+  -- stylua: ignore
   if opts.quickfix.clear then
     vim.keymap.set("n", opts.quickfix.clear, clearqflist,
       { silent = true, desc = "drop quickfix list" }
@@ -330,8 +328,7 @@ local function config(opts)
   if opts.quickfix.close then
     vim.keymap.set("n", opts.quickfix.close, function()
       vim.cmd.cclose()
-    end,
-    { silent = true, desc = "close quickfix list" })
+    end, { silent = true, desc = "close quickfix list" })
   end
   -- }}}
 
@@ -339,8 +336,7 @@ local function config(opts)
   if opts.locallist.open then
     vim.keymap.set("n", opts.locallist.open, function()
       vim.api.nvim_command("silent! lopen")
-    end, { silent = true, desc = "open local list" }
-    )
+    end, { silent = true, desc = "open local list" })
   end
 
   if opts.locallist.on_cursor then
@@ -350,6 +346,7 @@ local function config(opts)
     end, { expr = true, desc = "add to local list" })
   end
 
+  -- stylua: ignore
   if opts.locallist.add_note then
     vim.keymap.set("n", opts.locallist.add_note, function()
       vim.opt.opfunc = "v:lua.add_locallist_note"
@@ -357,6 +354,7 @@ local function config(opts)
     end, { expr = true, desc = "add to local list with node" })
   end
 
+  -- stylua: ignore
   if opts.locallist.clear then
     vim.keymap.set("n", opts.locallist.clear, clearloclist,
       { silent = true, desc = "drop local list" }
@@ -366,14 +364,14 @@ local function config(opts)
   if opts.locallist.close then
     vim.keymap.set("n", opts.locallist.close, function()
       vim.cmd.lclose()
-    end,
-    { silent = true, desc = "close local list" })
+    end, { silent = true, desc = "close local list" })
   end
   -- }}}
 
   jump_list_mapping(opts.quickfix.next, "cnext", "cfirst", "jump to next item in qf list")
   jump_list_mapping(opts.quickfix.prev, "cprevious", "clast", "jump to previous item in qf list")
   jump_list_mapping(opts.locallist.next, "lnext", "lfirst", "jump to next item in local list")
+  -- stylua: ignore
   jump_list_mapping(opts.locallist.prev, "lprevious", "llast", "jump to previous item in local list")
 
   if opts.in_list_dd then
@@ -393,7 +391,8 @@ local function config(opts)
       pattern = "qf",
       desc = "delete from qf/local lists",
       callback = function()
-        vim.keymap.set( "n", opts.in_list_dd, delete_list_item,
+        -- stylua: ignore
+        vim.keymap.set("n", opts.in_list_dd, delete_list_item,
           { buffer = true, desc = "delete from qf/local lists" }
         )
       end,
@@ -404,7 +403,8 @@ end
 
 return {
   insert_list = insert_list,
-  config = config,
+  setup = setup,
+  config = setup,
 }
 
 -- vim: fdm=marker fdl=0
