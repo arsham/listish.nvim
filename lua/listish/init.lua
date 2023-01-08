@@ -256,21 +256,7 @@ local function setup(opts)
     lists_close         = { opts.lists_close,         string_type },
     in_list_dd          = { opts.in_list_dd,          string_type },
     quickfix            = { opts.quickfix,            { "table" } },
-    quickfix_open       = { opts.quickfix.open,       string_type },
-    quickfix_on_cursor  = { opts.quickfix.on_cursor,  string_type },
-    quickfix_add_note   = { opts.quickfix.add_note,   string_type },
-    quickfix_clear      = { opts.quickfix.clear,      string_type },
-    quickfix_close      = { opts.quickfix.close,      string_type },
-    quickfix_next       = { opts.quickfix.next,       string_type },
-    quickfix_prev       = { opts.quickfix.prev,       string_type },
     locallist           = { opts.locallist,           { "table" } },
-    locallist_open      = { opts.locallist.open,      string_type },
-    locallist_on_cursor = { opts.locallist.on_cursor, string_type },
-    locallist_add_note  = { opts.locallist.add_note,  string_type },
-    locallist_clear     = { opts.locallist.clear,     string_type },
-    locallist_close     = { opts.locallist.close,     string_type },
-    locallist_next      = { opts.locallist.next,      string_type },
-    locallist_prev      = { opts.locallist.prev,      string_type },
   })
   -- }}}
 
@@ -296,6 +282,21 @@ local function setup(opts)
 
   if opts.clear_notes then
     quick.command(opts.clear_notes, clear_notes, { desc = "clear notes from list" })
+  end
+
+  if opts.quickfix then
+    -- stylua: ignore
+    vim.validate({
+      quickfix_open       = { opts.quickfix.open,       string_type },
+      quickfix_on_cursor  = { opts.quickfix.on_cursor,  string_type },
+      quickfix_add_note   = { opts.quickfix.add_note,   string_type },
+      quickfix_clear      = { opts.quickfix.clear,      string_type },
+      quickfix_close      = { opts.quickfix.close,      string_type },
+      quickfix_next       = { opts.quickfix.next,       string_type },
+      quickfix_prev       = { opts.quickfix.prev,       string_type },
+    })
+  else
+    opts.quickfix = {}
   end
 
   if opts.quickfix.open then
@@ -331,6 +332,21 @@ local function setup(opts)
     end, { silent = true, desc = "close quickfix list" })
   end
   -- }}}
+
+  if opts.locallist then
+    -- stylua: ignore
+    vim.validate({
+      locallist_open      = { opts.locallist.open,      string_type },
+      locallist_on_cursor = { opts.locallist.on_cursor, string_type },
+      locallist_add_note  = { opts.locallist.add_note,  string_type },
+      locallist_clear     = { opts.locallist.clear,     string_type },
+      locallist_close     = { opts.locallist.close,     string_type },
+      locallist_next      = { opts.locallist.next,      string_type },
+      locallist_prev      = { opts.locallist.prev,      string_type },
+    })
+  else
+    opts.locallist = {}
+  end
 
   -- Local list mappings {{{
   if opts.locallist.open then
@@ -382,6 +398,7 @@ local function setup(opts)
       desc = "don't list qf/local lists",
       callback = function()
         vim.bo.buflisted = false
+        ---@diagnostic disable-next-line: assign-type-mismatch
         vim.opt_local.cursorline = true
       end,
     })
