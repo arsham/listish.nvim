@@ -4,7 +4,8 @@
 ![License](https://img.shields.io/github/license/arsham/listish.nvim)
 
 Neovim plugin for quickfix and local lists. You can add and remove items, or
-you can create notes on current position to either lists.
+you can create notes on current position to either lists. It can show in the
+`signcolumn` where the note is made, and/or show as `extmarks`.
 
 1. [Demo](#demo)
 2. [Requirements](#requirements)
@@ -12,6 +13,7 @@ you can create notes on current position to either lists.
    - [Lazy](#lazy)
    - [Packer](#packer)
    - [Config](#config)
+   - [Highlight Groups](#highlight-groups)
    - [Lazy Loading](#lazy-loading)
 4. [Related Projects](#related-projects)
 5. [License](#license)
@@ -53,9 +55,9 @@ Use your favourite package manager to install this library.
 
 ```lua
 {
-	"arsham/listish.nvim",
-	dependencies = { "arsham/arshlib.nvim" },
-	config = true,
+  "arsham/listish.nvim",
+  dependencies = { "arsham/arshlib.nvim" },
+  config = true,
   -- or to provide configuration
   -- config = { theme_list = false, ..}
 }
@@ -65,11 +67,11 @@ Use your favourite package manager to install this library.
 
 ```lua
 use({
-	"arsham/listish.nvim",
-	requires = { "arsham/arshlib.nvim" },
-	config = function()
-		require("listish").config({})
-	end,
+  "arsham/listish.nvim",
+  requires = { "arsham/arshlib.nvim" },
+  config = function()
+    require("listish").config({})
+  end,
 })
 ```
 
@@ -82,8 +84,9 @@ To disable set them to `false`. For example:
 
 ```lua
 require("listish").config({
-	theme_list = false,
-	local_list = false,
+  theme_list = false,
+  local_list = false,
+  signs = false,
 })
 ```
 
@@ -95,8 +98,17 @@ Here is the default settings:
   clearqflist = "Clearquickfix", -- command
   clearloclist = "Clearloclist", -- command
   clear_notes = "ClearListNotes", -- command
-  lists_close = "<leader>cc",    -- closes both qf/loacal lists
+  lists_close = "<leader>cc",    -- closes both qf/local lists
   in_list_dd = "dd",             -- delete current item in the list
+  signs = {                      -- show signs on the signcolumn
+    locallist = "",             -- the icon/sigil/sign on the signcolumn
+    qflist = "",                -- the icon/sigil/sign on the signcolumn
+    priority = 10,
+  },
+  extmarks = {                   -- annotate with extmarks
+    locallist_text = " Locallist Note",
+    qflist_text = " Quickfix Note",
+  },
   quickfix = {
     open = "<leader>qo",
     on_cursor = "<leader>qq",    -- add current position to the list
@@ -118,6 +130,15 @@ Here is the default settings:
 }
 ```
 
+### Highlight Groups
+
+There are four highlight groups for signs and extmarks:
+
+- `ListishQfSign`
+- `ListishQfExt`
+- `ListishLocalSign`
+- `ListishLocalExt`
+
 ### Lazy Loading
 
 You can let your package manager to load this plugin on either key-mapping
@@ -125,20 +146,20 @@ events or when the first quickfix/local list is opened. Packer example:
 
 ```lua
 use({
-	"arsham/listish.nvim",
-	requires = { "arsham/arshlib.nvim" },
-	config = function()
-		require("listish").config({})
-	end,
-	keys = {
-		"<leader>qq",
-		"<leader>qn",
-		"<leader>qo",
-		"<leader>ww",
-		"<leader>wn",
-		"<leader>wo",
-	},
-	ft = { "qf" },
+  "arsham/listish.nvim",
+  requires = { "arsham/arshlib.nvim" },
+  config = function()
+    require("listish").config({})
+  end,
+  keys = {
+    "<leader>qq",
+    "<leader>qn",
+    "<leader>qo",
+    "<leader>ww",
+    "<leader>wn",
+    "<leader>wo",
+  },
+  ft = { "qf" },
 })
 ```
 

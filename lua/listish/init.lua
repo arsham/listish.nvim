@@ -1,6 +1,9 @@
 ---@type Quick
 local quick = require("arshlib.quick")
 
+local unique_id = "Z"
+local visual = require("listish.visual")
+
 ---When using `dd` in the quickfix list, remove the item from the quickfix
 -- list.
 local function delete_list_item() -- {{{
@@ -42,9 +45,8 @@ local function delete_list_item() -- {{{
   end
 end --}}}
 
-
 ---Inserts the current position of the cursor in the qf/local list with the
--- note.
+-- note. If extmarks and/or signs are enabled will update them.
 ---@param items ListItem[]
 ---@param is_local boolean if true, the item goes into the local list.
 local function insert_list(items, is_local) --{{{
@@ -62,14 +64,21 @@ local function insert_list(items, is_local) --{{{
   else
     vim.fn.setqflist(cur_list)
   end
-end --}}}
 
-local unique_id = "Z"
+  if visual.extmarks.set_extmarks then
+    visual.insert_extmarks(items, is_local)
+  end
+  if visual.extmarks.set_signs then
+    visual.insert_signs(items, is_local)
+  end
+  visual.setup_buf_autocmds(is_local)
+end --}}}
 
 ---Inserts the current position of the cursor in the qf/local list.
 ---@param note string
 ---@param is_local boolean if true, the item goes into the local list.
-local function insert_note_to_list(note, is_local) --{{{
+---@param user_defined boolean? specifies whether the user has provided a note.
+local function insert_note_to_list(note, is_local, user_defined) --{{{
   local location = vim.api.nvim_win_get_cursor(0)
   local item = {
     bufnr = vim.fn.bufnr(),
@@ -77,6 +86,7 @@ local function insert_note_to_list(note, is_local) --{{{
     col = location[2] + 1,
     text = note,
     type = unique_id,
+    user_defined = user_defined,
   }
   insert_list({ item }, is_local)
 end
@@ -84,10 +94,23 @@ end
 local clearqflist = function()
   vim.fn.setqflist({})
   vim.cmd.cclose()
+  if visual.extmarks.set_extmarks then
+    visual.update_extmarks()
+  end
+  if visual.extmarks.set_signs then
+    visual.update_signs()
+  end
 end
+
 local clearloclist = function()
   vim.fn.setloclist(0, {})
   vim.cmd.lclose()
+  if visual.extmarks.set_extmarks then
+    visual.update_extmarks()
+  end
+  if visual.extmarks.set_signs then
+    visual.update_signs()
+  end
 end
 --}}}
 
@@ -119,7 +142,7 @@ local function add_note(is_local) --{{{
     prompt = "Note: ",
   }, function(value)
     if value then
-      insert_note_to_list(value, is_local)
+      insert_note_to_list(value, is_local, true)
     end
   end)
 end --}}}
@@ -221,6 +244,15 @@ local defaults = { --{{{
   clear_notes = "ClearListNotes",
   lists_close = "<leader>cc",
   in_list_dd = "dd",
+  signs = {
+    locallist = "",
+    qflist = "",
+    priority = 10,
+  },
+  extmarks = {
+    locallist_text = " Locallist Note",
+    qflist_text = " Quickfix Note",
+  },
   quickfix = {
     open = "<leader>qo",
     on_cursor = "<leader>qq",
@@ -245,6 +277,7 @@ local defaults = { --{{{
 local function setup(opts)
   opts = vim.tbl_deep_extend("force", defaults, opts or {})
   local string_type = { "string", "nil", "boolean" }
+  local table_type = { "table", "nil", "boolean" }
   -- Validations {{{
   -- stylua: ignore
   vim.validate({
@@ -255,10 +288,44 @@ local function setup(opts)
     clear_notes         = { opts.clear_notes,         string_type },
     lists_close         = { opts.lists_close,         string_type },
     in_list_dd          = { opts.in_list_dd,          string_type },
+    signs               = { opts.signs,               table_type },
+    extmarks            = { opts.extmarks,            table_type },
     quickfix            = { opts.quickfix,            { "table" } },
     locallist           = { opts.locallist,           { "table" } },
   })
   -- }}}
+
+  if opts.signs then
+    -- stylua: ignore
+    vim.validate({
+      signs_locallist     = { opts.signs.locallist,     string_type },
+      signs_qflist        = { opts.signs.qflist,        string_type },
+      signs_priority      = { opts.signs.priority,      { "number" } },
+    })
+    visual.extmarks.set_signs = true
+    visual.extmarks.qf_sigil = opts.signs.qflist
+    visual.extmarks.local_sigil = opts.signs.locallist
+    visual.extmarks.priority = opts.signs.priority
+    vim.fn.sign_define(
+      visual.extmarks.qf_sigil,
+      { text = visual.extmarks.qf_sigil, texthl = visual.extmarks.qf_sign_hl_group }
+    )
+    vim.fn.sign_define(
+      visual.extmarks.local_sigil,
+      { text = visual.extmarks.local_sigil, texthl = visual.extmarks.local_sign_hl_group }
+    )
+  end
+
+  if opts.extmarks then
+    -- stylua: ignore
+    vim.validate({
+      extmarks_local_text = { opts.extmarks.locallist_text, string_type },
+      extmarks_qf_text    = { opts.extmarks.qflist_text,    string_type },
+    })
+    visual.extmarks.set_extmarks = true
+    visual.extmarks.qf_badge = opts.extmarks.qflist_text
+    visual.extmarks.local_badge = opts.extmarks.locallist_text
+  end
 
   if opts.lists_close then
     vim.keymap.set("n", opts.lists_close, function()
