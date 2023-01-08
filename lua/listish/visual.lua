@@ -1,8 +1,6 @@
----@type Quick
-local quick = require("arshlib.quick")
-
 local M = {}
 
+---@type Extmarks
 M.extmarks = { -- {{{
   unique_id = "Z",
   group = vim.api.nvim_create_augroup("LISTISH_AUTOCMDS", { clear = true }),
@@ -27,11 +25,6 @@ M.extmarks = { -- {{{
   local_badge = " Locallist Note",
   local_ext_hl_group = "ListishLocalExt",
 } -- }}}
-
-quick.highlight(M.extmarks.qf_ext_hl_group, M.extmarks.qf_ext_hl)
-quick.highlight(M.extmarks.local_ext_hl_group, M.extmarks.local_ext_hl)
-quick.highlight(M.extmarks.qf_sign_hl_group, M.extmarks.qf_sign_hl)
-quick.highlight(M.extmarks.local_sign_hl_group, M.extmarks.local_sign_hl)
 
 ---Checks a variable is set on the buffer. If so, it returns truw, otherwise
 -- it will set it and returns -false.

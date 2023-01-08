@@ -1,4 +1,3 @@
--- Annotations {{{
 ---@class HighlightOpt
 ---@field style string
 ---@field link? string if defined, everything else is ignored
@@ -24,4 +23,25 @@
 ---@field text string
 ---@field type string the type of the item. We assign `Z`.
 ---@field user_defined boolean if true the note has been provided by the user
--- }}}
+
+---@class Extmarks
+---@field unique_id string
+---@field group number
+---@field ns number
+---@field listener_name string
+---@field sign_group string
+---@field qf_sign_hl HighlightOpt
+---@field qf_ext_hl HighlightOpt
+---@field local_sign_hl HighlightOpt
+---@field local_ext_hl HighlightOpt
+---@field set_signs boolean
+---@field qf_sigil string
+---@field qf_sign_hl_group string
+---@field local_sign_hl_group string
+---@field local_sigil string
+---@field priority number
+---@field set_extmarks boolean
+---@field qf_badge string
+---@field qf_ext_hl_group string
+---@field local_badge string
+---@field local_ext_hl_group string

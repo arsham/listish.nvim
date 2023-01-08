@@ -114,7 +114,7 @@ local clearloclist = function()
 end
 --}}}
 
-local function filter_listish_items(cur_list)
+local function filter_listish_items(cur_list) -- {{{
   local new_list = {}
   for _, item in ipairs(cur_list) do
     if item.type ~= unique_id then
@@ -122,7 +122,7 @@ local function filter_listish_items(cur_list)
     end
   end
   return new_list
-end
+end -- }}}
 
 ---Clears the items added by this plugin from the quickfix list and the local
 -- list of the current window.
@@ -147,6 +147,7 @@ local function add_note(is_local) --{{{
   end)
 end --}}}
 
+-- Lua global space functions {{{
 -- selene: allow(global_usage)
 function _G.add_quickfix_note()
   add_note(false)
@@ -169,6 +170,7 @@ function _G.insert_to_locallist()
   local line = vim.api.nvim_get_current_line()
   insert_note_to_list(line, true)
 end
+-- }}}
 
 ---Makes the quickfix and local list prettier. Borrowed from nvim-bqf.
 -- selene: allow(global_usage)
@@ -237,6 +239,22 @@ local function jump_list_mapping(key, next, wrap, desc) --{{{
   )
 end --}}}
 
+---Sets up the highlight groups if they are not already defined by user.
+local function setup_highlight_groups() -- {{{
+  local names = {
+    qf_sign_hl = visual.extmarks.qf_sign_hl_group,
+    qf_ext_hl = visual.extmarks.qf_ext_hl_group,
+    local_sign_hl = visual.extmarks.local_sign_hl_group,
+    local_ext_hl = visual.extmarks.local_ext_hl_group,
+  }
+  for id, name in pairs(names) do
+    local ok = pcall(vim.api.nvim_get_hl_by_name, name, true)
+    if not ok then
+      quick.highlight(name, visual.extmarks[id])
+    end
+  end
+end -- }}}
+
 local defaults = { --{{{
   theme_list = true,
   clearqflist = "Clearquickfix",
@@ -295,6 +313,9 @@ local function setup(opts)
   })
   -- }}}
 
+  setup_highlight_groups()
+
+  -- Signs {{{
   if opts.signs then
     -- stylua: ignore
     vim.validate({
@@ -315,7 +336,9 @@ local function setup(opts)
       { text = visual.extmarks.local_sigil, texthl = visual.extmarks.local_sign_hl_group }
     )
   end
+  -- }}}
 
+  -- Extmarks {{{
   if opts.extmarks then
     -- stylua: ignore
     vim.validate({
@@ -326,6 +349,7 @@ local function setup(opts)
     visual.extmarks.qf_badge = opts.extmarks.qflist_text
     visual.extmarks.local_badge = opts.extmarks.locallist_text
   end
+  -- }}}
 
   if opts.lists_close then
     vim.keymap.set("n", opts.lists_close, function()
@@ -400,6 +424,7 @@ local function setup(opts)
   end
   -- }}}
 
+  -- Local list mappings {{{
   if opts.locallist then
     -- stylua: ignore
     vim.validate({
@@ -415,7 +440,6 @@ local function setup(opts)
     opts.locallist = {}
   end
 
-  -- Local list mappings {{{
   if opts.locallist.open then
     vim.keymap.set("n", opts.locallist.open, function()
       vim.api.nvim_command("silent! lopen")
@@ -457,6 +481,7 @@ local function setup(opts)
   -- stylua: ignore
   jump_list_mapping(opts.locallist.prev, "lprevious", "llast", "jump to previous item in local list")
 
+  -- Delete items with dd {{{
   if opts.in_list_dd then
     local qf_loc_lists_group = vim.api.nvim_create_augroup("QF_LOC_LISTS", { clear = true })
     vim.api.nvim_create_autocmd("Filetype", {
@@ -482,6 +507,7 @@ local function setup(opts)
       end,
     })
   end
+  -- }}}
   -- stylua: ignore end
 end
 
