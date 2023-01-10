@@ -160,6 +160,7 @@ function M.update_signs() -- {{{
   local qflist = vim.fn.getqflist()
   -- Bail early.
   if #locallist + #qflist == 0 then
+    vim.api.nvim_clear_autocmds({ group = M.extmarks.group })
     return
   end
 
