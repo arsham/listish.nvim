@@ -193,8 +193,8 @@ local function get_buffers_in_list(is_local) -- {{{
   end
 
   local list = {}
-  for item in pairs(items) do
-    table.insert(buffers, item)
+  for item in pairs(buffers) do
+    table.insert(list, item)
   end
   return list
 end -- }}}
