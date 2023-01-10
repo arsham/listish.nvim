@@ -57,7 +57,8 @@ function M.insert_extmarks(items, is_local) -- {{{
   }
   for _, item in ipairs(items) do
     if item.type == M.extmarks.unique_id then
-      opts.virt_text[1][1] = item.text
+      local line = vim.api.nvim_buf_get_lines(item.bufnr, item.lnum - 1, item.lnum, false)
+      opts.virt_text[1][1] = line[1] == item.text and badge or item.text
     end
     vim.api.nvim_buf_set_extmark(item.bufnr, M.extmarks.ns, item.lnum - 1, item.col - 1, opts)
   end
