@@ -77,8 +77,7 @@ end --}}}
 ---Inserts the current position of the cursor in the qf/local list.
 ---@param note string
 ---@param is_local boolean if true, the item goes into the local list.
----@param user_defined boolean? specifies whether the user has provided a note.
-local function insert_note_to_list(note, is_local, user_defined) --{{{
+local function insert_note_to_list(note, is_local) --{{{
   local location = vim.api.nvim_win_get_cursor(0)
   local item = {
     bufnr = vim.fn.bufnr(),
@@ -86,7 +85,6 @@ local function insert_note_to_list(note, is_local, user_defined) --{{{
     col = location[2] + 1,
     text = note,
     type = unique_id,
-    user_defined = user_defined,
   }
   insert_list({ item }, is_local)
 end
@@ -142,7 +140,7 @@ local function add_note(is_local) --{{{
     prompt = "Note: ",
   }, function(value)
     if value then
-      insert_note_to_list(value, is_local, true)
+      insert_note_to_list(value, is_local)
     end
   end)
 end --}}}

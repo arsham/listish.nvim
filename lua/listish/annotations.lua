@@ -22,7 +22,6 @@
 ---@field col number
 ---@field text string
 ---@field type string the type of the item. We assign `Z`.
----@field user_defined boolean if true the note has been provided by the user
 
 ---@class Extmarks
 ---@field unique_id string

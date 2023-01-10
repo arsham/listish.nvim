@@ -56,7 +56,7 @@ function M.insert_extmarks(items, is_local) -- {{{
     hl_mode = "combine",
   }
   for _, item in ipairs(items) do
-    if item.user_defined then
+    if item.type == M.extmarks.unique_id then
       opts.virt_text[1][1] = item.text
     end
     vim.api.nvim_buf_set_extmark(item.bufnr, M.extmarks.ns, item.lnum - 1, item.col - 1, opts)
