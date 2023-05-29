@@ -1,0 +1,269 @@
+*listish.txt*                                   Quickfix and locallist toolbox
+
+                                                                          ~
+                         .-')    .-') _            .-')    ('-. .-.       ~
+                        ( OO ). (  OO) )          ( OO ). ( OO )  /       ~
+      ,--.      ,-.-') (_)---\_)/     '._ ,-.-') (_)---\_),--. ,--.       ~
+      |  |.-')  |  |OO)/    _ | |'--...__)|  |OO)/    _ | |  | |  |       ~
+      |  | OO ) |  |  \\  :` `. '--.  .--'|  |  \\  :` `. |   .|  |       ~
+      |  |`-' | |  |(_/ '..`''.)   |  |   |  |(_/ '..`''.)|       |       ~
+     (|  '---.',|  |_.'.-._)   \   |  |  ,|  |_.'.-._)   \|  .-.  |       ~
+      |      |(_|  |   \       /   |  | (_|  |   \       /|  | |  |       ~
+      `------'  `--'    `-----'    `--'   `--'    `-----' `--' `--'       ~
+                                                                          ~
+
+Author:   Arsham Shirvani <arsham@duck.com>
+Homepage: <https://github.com/arsham/listish.nvim>
+License:  MIT license
+
+==============================================================================
+CONTENTS                                                    *listish-contents*
+
+1. Introduction ....................................... |listish-introduction|
+2. Requirements ....................................... |listish-requirements|
+3. Installation ....................................... |listish-installation|
+   - Lazy ..................................................... |listish-lazy|
+   - Packer ................................................. |listish-packer|
+   - Configuration ................................... |listish-configuration|
+   - Lazy Loading ..................................... |listish-lazy-loading|
+4. Mappings ............................................... |listish-mappings|
+5. Commands ............................................... |listish-commands|
+6. Highlight Groups ............................... |listish-highlight-groups|
+7. Related Projects ............................... |listish-related-projects|
+8. LICENSE ................................................. |listish-license|
+
+==============================================================================
+INTRODUCTION                                            *listish-introduction*
+
+Neovim plugin for quickfix and local lists. You can add and remove items, or
+you can create notes on current position to either lists. It can show in the
+`signcolumn` where the note is made, and/or show as `extmarks`.
+
+You can theme the lists by setting the `theme_list` option to `true`.
+
+==============================================================================
+REQUIREMENTS                                            *listish-requirements*
+
+This library supports Neovim v0.9.0 or newer.
+
+This plugin depends are the following libraries. Please make sure to add them
+as dependencies in your package manager:
+
+ Project         Link                                      Reason for using
+------------------------------------------------------------------------------
+ arshlib.nvim  <https://github.com/arsham/arshlib.nvim>   common library
+
+Please consider using the nvim-bqf <https://github.com/kevinhwang91/nvim-bqf>
+plugin to get the most out of your lists.
+
+==============================================================================
+INSTALLATION                                           *listish-installation*
+
+Use your favourite package manager to install this library.
+
+------------------------------------------------------------------------------
+LAZY                                              *listish-installation-lazy*
+
+>lua
+  {
+    "arsham/listish.nvim",
+    dependencies = { "arshlib.nvim" },
+    config = true,
+    -- or to provide configuration
+    -- config = {theme_list = false, ..}
+  }
+<
+
+------------------------------------------------------------------------------
+PACKER                                          *listish-installation-packer*
+
+>lua
+  use({
+    "arsham/listish.nvim",
+    requires = { "arsham/arshlib.nvim" },
+    config = function()
+      require("listish").config({})
+    end,
+  })
+<
+
+------------------------------------------------------------------------------
+CONFIGURATION                                          *listish-configuration*
+
+By default this pluging adds all necessary commands and mappings, and updates
+the theme of the buffer. However you can change or disable them to your liking.
+
+To disable set them to `false`. For example:
+
+>lua
+  require("listish").config({
+    theme_list = false,
+    local_list = false,
+    signs = false,
+  })
+<
+
+Here is a list of default configurations:
+
+>lua
+  {
+    theme_list = true,              -- theme the lists
+    clearqflist = "Clearquickfix",  -- command
+    clearloclist = "Clearloclist",  -- command
+    clear_notes = "ClearListNotes", -- command
+    lists_close = "<leader>cc",     -- closes both qf/local lists
+    in_list_dd = "dd",              -- delete current item in the list
+    signs = {                       -- show signs on the signcolumn
+      locallist = "",              -- the icon/sigil/sign on the signcolumn
+      qflist = "",                 -- the icon/sigil/sign on the signcolumn
+      priority = 10,
+    },
+    extmarks = {                    -- annotate with extmarks
+      locallist_text = " Locallist Note",
+      qflist_text = " Quickfix Note",
+    },
+    quickfix = {
+      open = "<leader>qo",
+      on_cursor = "<leader>qq",     -- add current position to the list
+      add_note = "<leader>qn",      -- add current position with your note to the list
+      clear = "<leader>qd",         -- clear all items
+      close = "<leader>qc",
+      next = "]q",
+      prev = "[q",
+    },
+    locallist = {
+      open = "<leader>wo",
+      on_cursor = "<leader>ww",
+      add_note = "<leader>wn",
+      clear = "<leader>wd",
+      close = "<leader>wc",
+      next = "]w",
+      prev = "[w",
+    },
+  }
+<
+
+LAZY LOADING                                            *listish-lazy-loading*
+------------------------------------------------------------------------------
+
+You can let your package manager to load this plugin on either key-mapping
+events or when the first quickfix/local list is opened. Packer example:
+
+>lua
+  use({
+    "arsham/listish.nvim",
+    requires = { "arsham/arshlib.nvim" },
+    config = function()
+      require("listish").config({})
+    end,
+    keys = {
+      "<leader>qq",
+      "<leader>qn",
+      "<leader>qo",
+      "<leader>ww",
+      "<leader>wn",
+      "<leader>wo",
+    },
+    ft = { "qf" },
+  })
+<
+
+==============================================================================
+MAPPINGS                                                   *listish-mappings*
+
+There are a few tools for interacting with quickfix and local lists. Following
+mappings can be used for either cases, all you need to do it to substitute 'w'
+for 'q' or vice versa. Generally q is for quickfix list and w is for local
+list. I chose w because it's beside q and it makes it easy to think about
+these two types of lists.
+
+These mapping: |<leader>qq|, |<leader>ww|, |<leader>qn| and |<leader>wn| are
+repeatable with the |.| dot operator!
+
+After adding an item to the list, an indicator in the statusline will show you
+how many items you have in a list.
+
+*LEADER-cc*  Close both quickfix and local list windows      *shark_LEADER-cc*
+*LEADER-qq*  Add current line and column to the quickfix     *shark_LEADER-qq*
+             list.
+
+*LEADER-qn*  Add current line and column with your note      *shark_LEADER-qn*
+             to the quickfix list.
+
+*LEADER-qo*  Open the quickfix list.                         *shark_LEADER-qo*
+*LEADER-qd*  Drop the quickfix list.                         *shark_LEADER-qd*
+*LEADER-qc*  Close the quickfix list.                        *shark_LEADER-qc*
+*]q*         Go to the next item in the quickfix list and centre.   *shark_]q*
+*[q*         Go to the previous item in the quickfix list           *shark_[q*
+             and centre.
+
+*LEADER-wq*  Add current line and column to the locallist.   *shark_LEADER-wq*
+*LEADER-wn*  Add current line and column with your note      *shark_LEADER-wn*
+             to the locallist.
+
+*LEADER-wo*  Open the locallist.                             *shark_LEADER-wo*
+*LEADER-wd*  Drop the locallist.                             *shark_LEADER-wd*
+*LEADER-wc*  Close the locallist.                            *shark_LEADER-wc*
+*]w*         Go to the next item in the locallist and centre.       *shark_]w*
+*[w*         Go to the previous item in the locallist and centre.   *shark_[w*
+
+==============================================================================
+COMMANDS                                                   *listish-commands*
+
+*:Clearquickfix*    Clear the quickfix list.
+*:Clearloclist*     Clear the local list of current buffer.
+
+==============================================================================
+HIGHLIGHT GROUPS                                    *listish-highlight-groups*
+
+There are four highlight groups for signs and extmarks:
+
+1. *ListishQfSign*
+2. *ListishQfExt*
+3. *ListishLocalSign*
+4. *ListishLocalExt*
+
+==============================================================================
+RELATED PROJECTS                                    *listish-related-projects*
+
+ nvim-bqf: <https://github.com/kevinhwang91/nvim-bqf>
+------------------------------------------------------------------------------
+ Manipulate lists with fzf.
+
+ replacer.nvim: <https://github.com/gabrielpoca/replacer.nvim>
+------------------------------------------------------------------------------
+ Makes a quickfix list editable in both content and file path.
+
+ quickfix-reflector.vim: <https://github.com/stefandtw/quickfix-reflector.vim>
+------------------------------------------------------------------------------
+ Change code right in the quickfix window.
+
+
+==============================================================================
+LICENSE                                                     *listish-license*
+
+MIT License
+
+Copyright (c) 2023 Arsham Shirvani
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*listish* <https://github.com/arsham/listish.nvim>
+
+vim:tw=78:ft=help
