@@ -1,0 +1,18 @@
+{
+  "diagnostics.globals": ["vim"],
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "Lua.diagnostics.disable": [
+    "missing-parameter",
+    "param-type-mismatch",
+    "undefined-field",
+    "missing-parameter",
+    "cast-local-type"
+  ],
+  "Lua.diagnostics.globals": ["vim", "_t", "require"],
+  "Lua.workspace.checkThirdParty": false,
+  "Lua.workspace.library": [
+    "runtime/lua",
+    "/usr/share/nvim/runtime",
+    "${3rd}/luassert/library"
+  ]
+}
