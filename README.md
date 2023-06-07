@@ -43,6 +43,10 @@ This plugin depends are the following libraries. Please make sure to add them
 as dependencies in your package manager:
 
 - [arshlib.nvim](https://github.com/arsham/arshlib.nvim)
+- (Optional) [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects)
+
+The _nvim-treesitter-textobjects_ is only used for repeating the actions of
+next/previous item movements.
 
 Please consider using the [nvim-bqf](https://github.com/kevinhwang91/nvim-bqf)
 plugin to get the most out of your lists.
@@ -56,7 +60,10 @@ Use your favourite package manager to install this library.
 ```lua
 {
   "arsham/listish.nvim",
-  dependencies = { "arsham/arshlib.nvim" },
+  dependencies = {
+    "arsham/arshlib.nvim",
+    "nvim-treesitter/nvim-treesitter-textobjects",
+  },
   config = true,
   -- or to provide configuration
   -- config = { theme_list = false, ..}
@@ -68,7 +75,10 @@ Use your favourite package manager to install this library.
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim" },
+  requires = {
+    "arsham/arshlib.nvim",
+    "nvim-treesitter/nvim-treesitter-textobjects",
+  },
   config = function()
     require("listish").config({})
   end,
@@ -147,7 +157,10 @@ events or when the first quickfix/local list is opened. Packer example:
 ```lua
 use({
   "arsham/listish.nvim",
-  requires = { "arsham/arshlib.nvim" },
+  dependencies = {
+    "arsham/arshlib.nvim",
+    "nvim-treesitter/nvim-treesitter-textobjects",
+  },
   config = function()
     require("listish").config({})
   end,

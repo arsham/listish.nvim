@@ -214,27 +214,41 @@ function _G.qftf(info) --{{{
 end --}}}
 
 ---Creates a mapping for jumping through lists.
----@param key string the key to map.
----@param next string the command to execute if there is a next item.
----@param wrap string the command to execute if there is no next item.
----@param desc string the description of the mapping.
-local function jump_list_mapping(key, next, wrap, desc) --{{{
-  if not key then
-    -- this makes the config simpler.
-    return
+local function jump_list_mapping(opts) --{{{
+  local move_fn = function(next, wrap)
+    return function()
+      local ok = pcall(vim.cmd, next)
+      if not ok then
+        pcall(vim.cmd, wrap)
+      end
+    end
   end
-  -- stylua: ignore
-  vim.keymap.set("n", key, function()
-    quick.cmd_and_centre(([[
-      try
-        %s
-      catch /^Vim\%%((\a\+)\)\=:E553/
-        %s
-      catch /^Vim\%%((\a\+)\)\=:E42\|E776/
-      endtry
-      ]]):format(next, wrap))
-    end, {desc = desc }
-  )
+  local c_next = move_fn("cnext", "cfirst")
+  local c_prev = move_fn("cprev", "clast")
+  local l_next = move_fn("lnext", "lfirst")
+  local l_prev = move_fn("lprev", "llast")
+  local ok, ts_repeat_move = pcall(require, "nvim-treesitter.textobjects.repeatable_move")
+  if ok then
+    c_next, c_prev = ts_repeat_move.make_repeatable_move_pair(c_next, c_prev)
+    l_next, l_prev = ts_repeat_move.make_repeatable_move_pair(l_next, l_prev)
+  end
+
+  if opts.quickfix.next then
+    local desc = "jump to next item in qf list"
+    vim.keymap.set("n", opts.quickfix.next, c_next, { desc = desc })
+  end
+  if opts.quickfix.prev then
+    local desc = "jump to previous item in qf list"
+    vim.keymap.set("n", opts.quickfix.prev, c_prev, { desc = desc })
+  end
+  if opts.locallist.next then
+    local desc = "jump to next item in local list"
+    vim.keymap.set("n", opts.locallist.next, l_next, { desc = desc })
+  end
+  if opts.locallist.prev then
+    local desc = "jump to previous item in local list"
+    vim.keymap.set("n", opts.locallist.prev, l_prev, { desc = desc })
+  end
 end --}}}
 
 ---Sets up the highlight groups if they are not already defined by user.
@@ -473,11 +487,9 @@ local function setup(opts)
   end
   -- }}}
 
-  jump_list_mapping(opts.quickfix.next, "cnext", "cfirst", "jump to next item in qf list")
-  jump_list_mapping(opts.quickfix.prev, "cprevious", "clast", "jump to previous item in qf list")
-  jump_list_mapping(opts.locallist.next, "lnext", "lfirst", "jump to next item in local list")
-  -- stylua: ignore
-  jump_list_mapping(opts.locallist.prev, "lprevious", "llast", "jump to previous item in local list")
+  if opts.quickfix.next or opts.quickfix.prev or opts.locallist.next or opts.locallist.prev then
+    jump_list_mapping(opts)
+  end
 
   -- Delete items with dd {{{
   if opts.in_list_dd then
