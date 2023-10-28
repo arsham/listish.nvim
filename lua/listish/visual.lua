@@ -20,10 +20,10 @@ M.extmarks = { -- {{{
   priority = 1,
 
   set_extmarks = false,
-  qf_badge = " Quickfix Note",
+  qf_badge = "Quickfix Note",
   qf_ext_hl_group = "ListishQfExt",
-  local_badge = " Locallist Note",
-  local_ext_hl_group = "ListishLocalExt",
+  loc_badge = "Locationlist Note",
+  loc_ext_hl_group = "ListishLocalExt",
 } -- }}}
 
 ---Checks a variable is set on the buffer. If so, it returns truw, otherwise
@@ -41,13 +41,15 @@ end --}}}
 
 ---For each item in the items list, it creates an extmark.
 ---@param items ListItem[]
----@param is_local boolean specifies what extmark text and colour to use.
-function M.insert_extmarks(items, is_local) -- {{{
+---@param is_loc boolean specifies what extmark text and colour to use.
+function M.insert_extmarks(items, is_loc) -- {{{
   local badge = M.extmarks.qf_badge
   local hl_group = M.extmarks.qf_ext_hl_group
-  if is_local then
-    badge = M.extmarks.local_badge
-    hl_group = M.extmarks.local_ext_hl_group
+  local sigil = M.extmarks.qf_sigil .. " "
+  if is_loc then
+    badge = M.extmarks.loc_badge
+    hl_group = M.extmarks.loc_ext_hl_group
+    sigil = M.extmarks.local_sigil .. " "
   end
 
   local opts = {
@@ -58,7 +60,8 @@ function M.insert_extmarks(items, is_local) -- {{{
   for _, item in ipairs(items) do
     if item.type == M.extmarks.unique_id then
       local line = vim.api.nvim_buf_get_lines(item.bufnr, item.lnum - 1, item.lnum, false)
-      opts.virt_text[1][1] = line[1] == item.text and badge or item.text
+      line = line[1] == item.text and badge or item.text
+      opts.virt_text[1][1] = sigil .. line
     end
     vim.api.nvim_buf_set_extmark(item.bufnr, M.extmarks.ns, item.lnum - 1, item.col - 1, opts)
   end
@@ -87,7 +90,7 @@ local function merge_list(list1, list2) -- {{{
   return list1
 end -- }}}
 
----Updates all the extmarks based on the qflist and locallist values. We don't
+---Updates all the extmarks based on the qflist and loclist values. We don't
 ---have a mechanism to detect item removeal, therefore it has to clear the
 ---extmarks and add them again on all buffers.
 function M.update_extmarks() -- {{{
@@ -96,16 +99,16 @@ function M.update_extmarks() -- {{{
     vim.api.nvim_buf_clear_namespace(buf, M.extmarks.ns, 0, -1)
   end
 
-  local locallist = {}
+  local loclist = {}
   for _, buf in ipairs(buffers) do
     local list = vim.fn.getloclist(buf)
     if #list > 0 then
-      locallist = merge_list(locallist, list)
+      loclist = merge_list(loclist, list)
     end
   end
   local qflist = vim.fn.getqflist()
   -- Bail early.
-  if #locallist + #qflist == 0 then
+  if #loclist + #qflist == 0 then
     return
   end
 
@@ -114,8 +117,8 @@ function M.update_extmarks() -- {{{
   end
 
   local items = {}
-  if #locallist > 0 then
-    for _, item in ipairs(locallist) do
+  if #loclist > 0 then
+    for _, item in ipairs(loclist) do
       if item.type == M.extmarks.unique_id then
         table.insert(items, item)
       end
@@ -144,24 +147,29 @@ function M.insert_signs(items, is_local) -- {{{
   end
 end -- }}}
 
----Updates all the signs based on the qflist and locallist values. We don't
----have a mechanism to detect item removeal, therefore it has to clear the
----signs and add them again on all buffers.
-function M.update_signs() -- {{{
+---Updates all the signs based on the qflist and loclist values. We don't
+-- have a mechanism to detect item removeal, therefore it has to clear the
+-- signs and add them again on all buffers.
+---@param remove boolean|nil if set to true the signs will be removed
+function M.update_signs(remove) -- {{{
   vim.fn.sign_unplace(M.extmarks.sign_group)
 
-  local locallist = {}
+  local loclist = {}
   local buffers = buffer_list()
   for _, buf in ipairs(buffers) do
     local list = vim.fn.getloclist(buf)
     if #list > 0 then
-      locallist = merge_list(locallist, list)
+      loclist = merge_list(loclist, list)
     end
   end
   local qflist = vim.fn.getqflist()
   -- Bail early.
-  if #locallist + #qflist == 0 then
+  if #loclist + #qflist == 0 then
     vim.api.nvim_clear_autocmds({ group = M.extmarks.group })
+    return
+  end
+
+  if remove then
     return
   end
 
@@ -170,8 +178,8 @@ function M.update_signs() -- {{{
   end
 
   local items = {}
-  if #locallist > 0 then
-    for _, item in ipairs(locallist) do
+  if #loclist > 0 then
+    for _, item in ipairs(loclist) do
       if item.type == M.extmarks.unique_id then
         table.insert(items, item)
       end

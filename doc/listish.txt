@@ -1,4 +1,4 @@
-*listish.txt*                                   Quickfix and locallist toolbox
+*listish.txt*                                Quickfix and Locationlist toolbox
 
                                                                           ~
                          .-')    .-') _            .-')    ('-. .-.       ~
@@ -122,13 +122,13 @@ Here is a list of default configurations:
     lists_close = "<leader>cc",     -- closes both qf/local lists
     in_list_dd = "dd",              -- delete current item in the list
     signs = {                       -- show signs on the signcolumn
-      locallist = "",              -- the icon/sigil/sign on the signcolumn
+      loclist = "",                -- the icon/sigil/sign on the signcolumn
       qflist = "",                 -- the icon/sigil/sign on the signcolumn
       priority = 10,
     },
     extmarks = {                    -- annotate with extmarks
-      locallist_text = " Locallist Note",
-      qflist_text = " Quickfix Note",
+      loclist_text = "loclist Note",
+      qflist_text = "Quickfix Note",
     },
     quickfix = {
       open = "<leader>qo",
@@ -139,7 +139,7 @@ Here is a list of default configurations:
       next = "]q",
       prev = "[q",
     },
-    locallist = {
+    loclist = {
       open = "<leader>wo",
       on_cursor = "<leader>ww",
       add_note = "<leader>wn",
@@ -224,27 +224,28 @@ how many items you have in a list.
                  with |;| and |,|.
 
                                               *<Leader>ww* *listish_LEADER-ww*
-<Leader>ww       Add current line and column to the locallist.
+<Leader>ww       Add current line and column to the location list.
 
                                               *<Leader>wn* *listish_LEADER-wn*
-<Leader>wn       Add current line and column with your note to the locallist.
+<Leader>wn       Add current line and column with your note to the location
+list.
 
                                               *<Leader>wo* *listish_LEADER-wo*
-<Leader>wo       Open the locallist.
+<Leader>wo       Open the location list.
 
                                               *<Leader>wd* *listish_LEADER-wd*
-<Leader>wd       Drop the locallist.
+<Leader>wd       Drop the location list.
 
                                               *<Leader>wc* *listish_LEADER-wc*
-<Leader>wc       Close the locallist.
+<Leader>wc       Close the location list.
 
                                                              *]w* *listish_]w*
-]w               Go to the next item in the locallist and centre.
+]w               Go to the next item in the location list and centre.
                  If `nvim-treesitter-textobjects` is available you can repeat
                  with |;| and |,|.
 
                                                              *[w* *listish_[w*
-[w               Go to the previous item in the locallist and centre.
+[w               Go to the previous item in the location list and centre.
                  If `nvim-treesitter-textobjects` is available you can repeat
                  with |;| and |,|.
 

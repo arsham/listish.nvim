@@ -42,5 +42,5 @@
 ---@field set_extmarks boolean
 ---@field qf_badge string
 ---@field qf_ext_hl_group string
----@field local_badge string
----@field local_ext_hl_group string
+---@field loc_badge string
+---@field loc_ext_hl_group string

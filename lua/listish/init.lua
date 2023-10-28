@@ -45,13 +45,13 @@ local function delete_list_item() -- {{{
   end
 end --}}}
 
----Inserts the current position of the cursor in the qf/local list with the
+---Inserts the current position of the cursor in the qf/location list with the
 -- note. If extmarks and/or signs are enabled will update them.
 ---@param items ListItem[]
----@param is_local boolean if true, the item goes into the local list.
-local function insert_list(items, is_local) --{{{
+---@param is_loc boolean if true, the item goes into the location list.
+local function insert_list(items, is_loc) --{{{
   local cur_list = {}
-  if is_local then
+  if is_loc then
     cur_list = vim.fn.getloclist(0)
   else
     cur_list = vim.fn.getqflist()
@@ -59,25 +59,25 @@ local function insert_list(items, is_local) --{{{
 
   cur_list = vim.list_extend(cur_list, items)
 
-  if is_local then
+  if is_loc then
     vim.fn.setloclist(0, cur_list)
   else
     vim.fn.setqflist(cur_list)
   end
 
   if visual.extmarks.set_extmarks then
-    visual.insert_extmarks(items, is_local)
+    visual.insert_extmarks(items, is_loc)
   end
   if visual.extmarks.set_signs then
-    visual.insert_signs(items, is_local)
+    visual.insert_signs(items, is_loc)
   end
-  visual.setup_buf_autocmds(is_local)
+  visual.setup_buf_autocmds(is_loc)
 end --}}}
 
----Inserts the current position of the cursor in the qf/local list.
+---Inserts the current position of the cursor in the qf/location list.
 ---@param note string
----@param is_local boolean if true, the item goes into the local list.
-local function insert_note_to_list(note, is_local) --{{{
+---@param is_loc boolean if true, the item goes into the location list.
+local function insert_note_to_list(note, is_loc) --{{{
   local location = vim.api.nvim_win_get_cursor(0)
   local item = {
     bufnr = vim.fn.bufnr(),
@@ -86,7 +86,7 @@ local function insert_note_to_list(note, is_local) --{{{
     text = note,
     type = unique_id,
   }
-  insert_list({ item }, is_local)
+  insert_list({ item }, is_loc)
 end
 
 local clearqflist = function()
@@ -122,8 +122,8 @@ local function filter_listish_items(cur_list) -- {{{
   return new_list
 end -- }}}
 
----Clears the items added by this plugin from the quickfix list and the local
--- list of the current window.
+---Clears the items added by this plugin from the quickfix list and the
+-- location list of the current window.
 local function clear_notes() --{{{
   local new_list = filter_listish_items(vim.fn.getloclist(0))
   vim.fn.setloclist(0, new_list)
@@ -134,13 +134,13 @@ end --}}}
 
 ---Opens a popup for a note, and adds the current line and column with the note
 -- to the list.
----@param is_local boolean if true, the item goes into the local list.
-local function add_note(is_local) --{{{
+---@param is_loc boolean if true, the item goes into the location list.
+local function add_note(is_loc) --{{{
   vim.ui.input({
     prompt = "Note: ",
   }, function(value)
     if value then
-      insert_note_to_list(value, is_local)
+      insert_note_to_list(value, is_loc)
     end
   end)
 end --}}}
@@ -162,15 +162,15 @@ function _G.insert_to_quickfix()
   insert_note_to_list(line, false)
 end
 
----Add the current line and the column to the local list.
 -- selene: allow(global_usage)
 function _G.insert_to_locallist()
+---Add the current line and the column to the location list.
   local line = vim.api.nvim_get_current_line()
   insert_note_to_list(line, true)
 end
 -- }}}
 
----Makes the quickfix and local list prettier. Borrowed from nvim-bqf.
+---Makes the quickfix and location list prettier. Borrowed from nvim-bqf.
 -- selene: allow(global_usage)
 function _G.qftf(info) --{{{
   local items
@@ -241,13 +241,13 @@ local function jump_list_mapping(opts) --{{{
     local desc = "jump to previous item in qf list"
     vim.keymap.set("n", opts.quickfix.prev, c_prev, { desc = desc })
   end
-  if opts.locallist.next then
-    local desc = "jump to next item in local list"
-    vim.keymap.set("n", opts.locallist.next, l_next, { desc = desc })
+  if opts.loclist.next then
+    local desc = "jump to next item in location list"
+    vim.keymap.set("n", opts.loclist.next, l_next, { desc = desc })
   end
-  if opts.locallist.prev then
-    local desc = "jump to previous item in local list"
-    vim.keymap.set("n", opts.locallist.prev, l_prev, { desc = desc })
+  if opts.loclist.prev then
+    local desc = "jump to previous item in location list"
+    vim.keymap.set("n", opts.loclist.prev, l_prev, { desc = desc })
   end
 end --}}}
 
@@ -257,7 +257,7 @@ local function setup_highlight_groups() -- {{{
     qf_sign_hl = visual.extmarks.qf_sign_hl_group,
     qf_ext_hl = visual.extmarks.qf_ext_hl_group,
     local_sign_hl = visual.extmarks.local_sign_hl_group,
-    local_ext_hl = visual.extmarks.local_ext_hl_group,
+    local_ext_hl = visual.extmarks.loc_ext_hl_group,
   }
   for id, name in pairs(names) do
     local ok = pcall(vim.api.nvim_get_hl_by_name, name, true)
@@ -275,13 +275,13 @@ local defaults = { --{{{
   lists_close = "<leader>cc",
   in_list_dd = "dd",
   signs = {
-    locallist = "",
+    loclist = "",
     qflist = "",
     priority = 10,
   },
   extmarks = {
-    locallist_text = " Locallist Note",
-    qflist_text = " Quickfix Note",
+    loclist_text = "Locationlist Note",
+    qflist_text = "Quickfix Note",
   },
   quickfix = {
     open = "<leader>qo",
@@ -293,7 +293,7 @@ local defaults = { --{{{
     prev = "[q",
   },
 
-  locallist = {
+  loclist = {
     open = "<leader>wo",
     on_cursor = "<leader>ww",
     add_note = "<leader>wn",
@@ -311,17 +311,17 @@ local function setup(opts)
   -- Validations {{{
   -- stylua: ignore
   vim.validate({
-    opts                = { opts,            { "table",   false } },
-    theme_list          = { opts.theme_list, { "boolean", "nil" }, false },
-    clearqflist         = { opts.clearqflist,         string_type },
-    clearloclist        = { opts.clearloclist,        string_type },
-    clear_notes         = { opts.clear_notes,         string_type },
-    lists_close         = { opts.lists_close,         string_type },
-    in_list_dd          = { opts.in_list_dd,          string_type },
-    signs               = { opts.signs,               table_type },
-    extmarks            = { opts.extmarks,            table_type },
-    quickfix            = { opts.quickfix,            { "table" } },
-    locallist           = { opts.locallist,           { "table" } },
+    opts         = { opts,              { "table", false } },
+    theme_list   = { opts.theme_list,   { "boolean", "nil" }, false },
+    clearqflist  = { opts.clearqflist,  string_type },
+    clearloclist = { opts.clearloclist, string_type },
+    clear_notes  = { opts.clear_notes,  string_type },
+    lists_close  = { opts.lists_close,  string_type },
+    in_list_dd   = { opts.in_list_dd,   string_type },
+    signs        = { opts.signs,        table_type },
+    extmarks     = { opts.extmarks,     table_type },
+    quickfix     = { opts.quickfix,     { "table" } },
+    loclist    = { opts.loclist,    { "table" } },
   })
   -- }}}
 
@@ -331,13 +331,13 @@ local function setup(opts)
   if opts.signs then
     -- stylua: ignore
     vim.validate({
-      signs_locallist     = { opts.signs.locallist,     string_type },
-      signs_qflist        = { opts.signs.qflist,        string_type },
-      signs_priority      = { opts.signs.priority,      { "number" } },
+      signs_loclist = { opts.signs.loclist, string_type },
+      signs_qflist    = { opts.signs.qflist,    string_type },
+      signs_priority  = { opts.signs.priority,  { "number" }},
     })
     visual.extmarks.set_signs = true
     visual.extmarks.qf_sigil = opts.signs.qflist
-    visual.extmarks.local_sigil = opts.signs.locallist
+    visual.extmarks.local_sigil = opts.signs.loclist
     visual.extmarks.priority = opts.signs.priority
     vim.fn.sign_define(
       visual.extmarks.qf_sigil,
@@ -354,12 +354,12 @@ local function setup(opts)
   if opts.extmarks then
     -- stylua: ignore
     vim.validate({
-      extmarks_local_text = { opts.extmarks.locallist_text, string_type },
+      extmarks_local_text = { opts.extmarks.loclist_text, string_type },
       extmarks_qf_text    = { opts.extmarks.qflist_text,    string_type },
     })
     visual.extmarks.set_extmarks = true
     visual.extmarks.qf_badge = opts.extmarks.qflist_text
-    visual.extmarks.local_badge = opts.extmarks.locallist_text
+    visual.extmarks.loc_badge = opts.extmarks.loclist_text
   end
   -- }}}
 
@@ -367,7 +367,7 @@ local function setup(opts)
     vim.keymap.set("n", opts.lists_close, function()
       vim.cmd.cclose()
       vim.cmd.lclose()
-    end, { silent = true, desc = "Close quickfix list and local list windows" })
+    end, { silent = true, desc = "Close quickfix list and location list windows" })
   end
 
   if opts.theme_list then
@@ -380,7 +380,7 @@ local function setup(opts)
   end
 
   if opts.clearloclist then
-    quick.command(opts.clearloclist, clearloclist, { desc = "clear local list items" })
+    quick.command(opts.clearloclist, clearloclist, { desc = "clear location list items" })
   end
 
   if opts.clear_notes then
@@ -437,57 +437,57 @@ local function setup(opts)
   -- }}}
 
   -- Local list mappings {{{
-  if opts.locallist then
+  if opts.loclist then
     -- stylua: ignore
     vim.validate({
-      locallist_open      = { opts.locallist.open,      string_type },
-      locallist_on_cursor = { opts.locallist.on_cursor, string_type },
-      locallist_add_note  = { opts.locallist.add_note,  string_type },
-      locallist_clear     = { opts.locallist.clear,     string_type },
-      locallist_close     = { opts.locallist.close,     string_type },
-      locallist_next      = { opts.locallist.next,      string_type },
-      locallist_prev      = { opts.locallist.prev,      string_type },
+      loclist_open      = { opts.loclist.open,      string_type },
+      loclist_on_cursor = { opts.loclist.on_cursor, string_type },
+      loclist_add_note  = { opts.loclist.add_note,  string_type },
+      loclist_clear     = { opts.loclist.clear,     string_type },
+      loclist_close     = { opts.loclist.close,     string_type },
+      loclist_next      = { opts.loclist.next,      string_type },
+      loclist_prev      = { opts.loclist.prev,      string_type },
     })
   else
-    opts.locallist = {}
+    opts.loclist = {}
   end
 
-  if opts.locallist.open then
-    vim.keymap.set("n", opts.locallist.open, function()
+  if opts.loclist.open then
+    vim.keymap.set("n", opts.loclist.open, function()
       vim.api.nvim_command("silent! lopen")
     end, { silent = true, desc = "open local list" })
   end
 
-  if opts.locallist.on_cursor then
-    vim.keymap.set("n", opts.locallist.on_cursor, function()
       vim.opt.opfunc = "v:lua.insert_to_locallist"
+  if opts.loclist.on_cursor then
+    vim.keymap.set("n", opts.loclist.on_cursor, function()
       return "g@<cr>"
     end, { expr = true, desc = "add to local list" })
   end
 
   -- stylua: ignore
-  if opts.locallist.add_note then
-    vim.keymap.set("n", opts.locallist.add_note, function()
       vim.opt.opfunc = "v:lua.add_locallist_note"
+  if opts.loclist.add_note then
+    vim.keymap.set("n", opts.loclist.add_note, function()
       return "g@<cr>"
-    end, { expr = true, desc = "add to local list with node" })
+    end, { expr = true, desc = "add to location list with node" })
   end
 
   -- stylua: ignore
-  if opts.locallist.clear then
-    vim.keymap.set("n", opts.locallist.clear, clearloclist,
-      { silent = true, desc = "drop local list" }
+  if opts.loclist.clear then
+    vim.keymap.set("n", opts.loclist.clear, clearloclist,
+      { silent = true, desc = "drop location list" }
     )
   end
 
-  if opts.locallist.close then
-    vim.keymap.set("n", opts.locallist.close, function()
+  if opts.loclist.close then
+    vim.keymap.set("n", opts.loclist.close, function()
       vim.cmd.lclose()
-    end, { silent = true, desc = "close local list" })
+    end, { silent = true, desc = "close location list" })
   end
   -- }}}
 
-  if opts.quickfix.next or opts.quickfix.prev or opts.locallist.next or opts.locallist.prev then
+  if opts.quickfix.next or opts.quickfix.prev or opts.loclist.next or opts.loclist.prev then
     jump_list_mapping(opts)
   end
 
@@ -497,7 +497,7 @@ local function setup(opts)
     vim.api.nvim_create_autocmd("Filetype", {
       group = qf_loc_lists_group,
       pattern = "qf",
-      desc = "don't list qf/local lists",
+      desc = "don't list qf/location lists",
       callback = function()
         vim.bo.buflisted = false
         ---@diagnostic disable-next-line: assign-type-mismatch
@@ -508,11 +508,11 @@ local function setup(opts)
     vim.api.nvim_create_autocmd("FileType", {
       group = qf_loc_lists_group,
       pattern = "qf",
-      desc = "delete from qf/local lists",
+      desc = "delete from qf/location lists",
       callback = function()
         -- stylua: ignore
         vim.keymap.set("n", opts.in_list_dd, delete_list_item,
-          { buffer = true, desc = "delete from qf/local lists" }
+          { buffer = true, desc = "delete from qf/location lists" }
         )
       end,
     })
