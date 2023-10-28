@@ -146,25 +146,21 @@ local function add_note(is_loc) --{{{
 end --}}}
 
 -- Lua global space functions {{{
--- selene: allow(global_usage)
-function _G.add_quickfix_note()
+local function add_quickfix_note()
   add_note(false)
 end
--- selene: allow(global_usage)
-function _G.add_locallist_note()
+local function add_locationlist_note()
   add_note(true)
 end
 
--- selene: allow(global_usage)
 ---Add the current line and the column to the quickfix list.
-function _G.insert_to_quickfix()
+local function insert_to_quickfix()
   local line = vim.api.nvim_get_current_line()
   insert_note_to_list(line, false)
 end
 
--- selene: allow(global_usage)
-function _G.insert_to_locallist()
 ---Add the current line and the column to the location list.
+local function insert_to_location_list()
   local line = vim.api.nvim_get_current_line()
   insert_note_to_list(line, true)
 end
@@ -410,14 +406,14 @@ local function setup(opts)
 
   if opts.quickfix.on_cursor then
     vim.keymap.set("n", opts.quickfix.on_cursor, function()
-      vim.opt.opfunc = "v:lua.insert_to_quickfix"
+      vim.opt.opfunc = "v:lua.require'listish'.insert_to_quickfix"
       return "g@<cr>"
     end, { expr = true, desc = "add to quickfix list" })
   end
 
   if opts.quickfix.add_note then
     vim.keymap.set("n", opts.quickfix.add_note, function()
-      vim.opt.opfunc = "v:lua.add_quickfix_note"
+      vim.opt.opfunc = "v:lua.require'listish'.add_quickfix_note"
       return "g@<cr>"
     end, { expr = true, desc = "add to quickfix list with node" })
   end
@@ -458,17 +454,17 @@ local function setup(opts)
     end, { silent = true, desc = "open local list" })
   end
 
-      vim.opt.opfunc = "v:lua.insert_to_locallist"
   if opts.loclist.on_cursor then
     vim.keymap.set("n", opts.loclist.on_cursor, function()
+      vim.opt.opfunc = "v:lua.require'listish'.insert_to_location_list"
       return "g@<cr>"
     end, { expr = true, desc = "add to local list" })
   end
 
   -- stylua: ignore
-      vim.opt.opfunc = "v:lua.add_locallist_note"
   if opts.loclist.add_note then
     vim.keymap.set("n", opts.loclist.add_note, function()
+      vim.opt.opfunc = "v:lua.require'listish'.add_locationlist_note"
       return "g@<cr>"
     end, { expr = true, desc = "add to location list with node" })
   end
@@ -523,6 +519,10 @@ end
 
 return {
   insert_list = insert_list,
+  add_locationlist_note = add_locationlist_note,
+  add_quickfix_note = add_quickfix_note,
+  insert_to_quickfix = insert_to_quickfix,
+  insert_to_location_list = insert_to_location_list,
   setup = setup,
   config = setup,
 }

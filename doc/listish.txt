@@ -44,7 +44,7 @@ You can theme the lists by setting the `theme_list` option to `true`.
 ==============================================================================
 REQUIREMENTS                                            *listish-requirements*
 
-This library supports Neovim v0.9.0 or newer.
+This library supports Neovim v0.10.0 or newer.
 
 This plugin depends are the following libraries. Please make sure to add them
 as dependencies in your package manager:

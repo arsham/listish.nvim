@@ -37,7 +37,7 @@ Adding notes to the list:
 ## Requirements
 
 This library supports [Neovim
-v0.9.0](https://github.com/neovim/neovim/releases/tag/v0.9.0) and newer.
+v0.10.0](https://github.com/neovim/neovim/releases/tag/v0.10.0) and newer.
 
 This plugin depends are the following libraries. Please make sure to add them
 as dependencies in your package manager:
